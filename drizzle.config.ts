@@ -4,7 +4,7 @@ import { defineConfig } from "drizzle-kit";
 const isProduction = process.env.NODE_ENV!;
 
 export default defineConfig({
-  out: "./drizzle",
+  out: "./src/db/migrations",
   schema: "./src/db/schema.ts",
   dialect: "postgresql",
   dbCredentials: isProduction
