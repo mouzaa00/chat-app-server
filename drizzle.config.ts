@@ -1,7 +1,7 @@
 import "dotenv/config";
 import { defineConfig } from "drizzle-kit";
 
-const isProduction = process.env.NODE_ENV!;
+const isProduction = process.env.NODE_ENV === "production";
 
 export default defineConfig({
   out: "./src/db/migrations",
