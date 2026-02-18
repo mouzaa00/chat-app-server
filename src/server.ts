@@ -9,13 +9,13 @@ app.use(
   cors({
     origin: process.env.ORIGIN,
     credentials: true,
-  })
+  }),
 );
 
 app.use(express.json());
 app.use(cookieParser());
 
-app.use("/api", router);
+app.use("/api/v1", router);
 
 app.get("/healthcheck", (req, res) => {
   res.sendStatus(200);
