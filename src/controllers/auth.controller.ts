@@ -1,13 +1,16 @@
-import { Request, Response } from "express";
-import { createUser, getUserByEmail } from "../services/user.service";
-import { signJWT, validatePassword, verifyJwt } from "../utils";
+import type { NextFunction, Request, Response } from "express";
+import { signJWT, verifyJwt } from "../utils";
 import { log } from "../logger";
-import { LoginBody } from "../schemas/auth.schema";
-import { register } from "../services/auth.service";
+import type { LoginBody, RegisterBody } from "../schemas/auth.schema";
+import { login, logout, register } from "../services/auth.service";
 
 const { ACCESS_TOKEN_TTL, REFRESH_TOKEN_TTL } = process.env;
 
-export async function registerUser(req: Request, res: Response) {
+export async function registerHandler(
+  req: Request<{}, {}, RegisterBody>,
+  res: Response,
+  next: NextFunction
+) {
   try {
     const { user, accessToken, refreshToken } = await register(req.body);
 
@@ -25,57 +28,40 @@ export async function registerUser(req: Request, res: Response) {
     });
 
     res.status(201).json({ user });
-  } catch (err: any) {
-    res.status(400).send({ message: err.message });
+  } catch (error) {
+    next(error);
   }
 }
 
-export async function loginUser(
+export async function loginHandler(
   req: Request<{}, {}, LoginBody>,
-  res: Response
+  res: Response,
+  next: NextFunction
 ) {
   try {
-    const { email, password } = req.body;
-
-    const user = await getUserByEmail(email);
-    if (!user) {
-      res.status(401).json({ message: "Invalid credentials" });
-      return;
-    }
-
-    // Omitting password field from user, so I don't send it to client
-    const { password: candidatePassword, ...userWithoutPassword } = user;
-
-    const isValidPassword = await validatePassword(password, candidatePassword);
-    if (!isValidPassword) {
-      res.status(401).json({ message: "Invalid credentials" });
-      return;
-    }
-
-    const accessToken = await signJWT({ id: user.id }, ACCESS_TOKEN_TTL!);
-    const refreshToken = await signJWT({ id: user.id }, REFRESH_TOKEN_TTL!);
+    const { user, accessToken, refreshToken } = await login(req.body);
 
     res.cookie("accessToken", accessToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
-      maxAge: 15 * 60 * 1000, // 15 mins
+      maxAge: 15 * 60 * 1000, // cookie expires after 15 mins
     });
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      maxAge: 7 * 24 * 60 * 60 * 1000, // cookie expires after 7 days
     });
 
-    res.json(userWithoutPassword);
-  } catch (err: any) {
-    log.error(`Database error: ${err.message}`);
-    res.status(500).json({ message: "Server error" });
+    res.status(200).json({ user });
+  } catch (error) {
+    next(error);
   }
 }
 
-export function logoutUser(req: Request, res: Response) {
+export async function logoutHandler(req: Request, res: Response) {
+  await logout(res.locals.user.id);
   res.clearCookie("accessToken");
   res.clearCookie("refreshToken");
   res.json({ message: "User logged out successfully" });

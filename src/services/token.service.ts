@@ -1,7 +1,7 @@
 import crypto from "crypto";
-import ms from "ms";
 import { db } from "../db";
 import { refreshTokens } from "../db/schema";
+import { eq } from "drizzle-orm";
 
 export async function saveRefreshToken(userId: string, token: string) {
   const hash = crypto.createHash("sha256").update(token).digest("hex");
@@ -10,6 +10,10 @@ export async function saveRefreshToken(userId: string, token: string) {
     userId,
     token: hash,
     // Token expires after 7 days (hard coded for now)
-    expiresAt: new Date(Date.now() + ms("7d")),
+    expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
   });
+}
+
+export async function invalidateToken(userId: string) {
+  await db.delete(refreshTokens).where(eq(refreshTokens.userId, userId));
 }

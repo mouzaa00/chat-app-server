@@ -1,10 +1,10 @@
 import { Router } from "express";
 import { validateRequest } from "./middleware/validateRequest";
 import {
-  loginUser,
-  logoutUser,
+  loginHandler,
+  logoutHandler,
   refreshToken,
-  registerUser,
+  registerHandler,
 } from "./controllers/auth.controller";
 import { loginSchema, registerSchema } from "./schemas/auth.schema";
 import { authenticateToken } from "./middleware/authenticateToken";
@@ -37,12 +37,9 @@ const router = Router();
 /**
  * Authentication resource
  */
-router.post("/auth/register", validateRequest(registerSchema), registerUser);
-
-router.post("/auth/login", validateRequest(loginSchema), loginUser);
-
-router.post("/auth/logout", logoutUser);
-
+router.post("/auth/register", validateRequest(registerSchema), registerHandler);
+router.post("/auth/login", validateRequest(loginSchema), loginHandler);
+router.post("/auth/logout", authenticateToken, logoutHandler);
 router.post("/auth/refresh", refreshToken);
 
 /**

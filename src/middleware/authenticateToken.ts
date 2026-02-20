@@ -1,5 +1,6 @@
 import type { Request, Response, NextFunction } from "express";
 import { verifyJwt } from "../utils";
+import { UnauthorizedError } from "../errors";
 
 export async function authenticateToken(
   req: Request,
@@ -17,13 +18,10 @@ export async function authenticateToken(
 
     const { payload } = await verifyJwt(accessToken);
     if (!payload) {
-      res
-        .status(401)
-        .json({ message: "Unauthenticated, expired or invalid token" });
-      return;
+      throw new UnauthorizedError("Unauthenticated, expired or invalid token");
     }
 
-    res.locals.user = { id: payload.id };
+    res.locals.user = payload.user;
     next();
   } catch (err) {
     res.status(500).json({ message: "Server error" });

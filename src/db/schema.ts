@@ -1,8 +1,14 @@
-import { pgTable, text, varchar, timestamp } from "drizzle-orm/pg-core";
+import {
+  pgTable,
+  text,
+  varchar,
+  timestamp,
+  pgEnum,
+  uuid,
+  unique,
+  boolean,
+} from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
-import { pgEnum } from "drizzle-orm/pg-core";
-import { uuid } from "drizzle-orm/pg-core";
-import { unique } from "drizzle-orm/pg-core";
 
 export const usersTable = pgTable("users", {
   id: uuid("id").defaultRandom().primaryKey(),
