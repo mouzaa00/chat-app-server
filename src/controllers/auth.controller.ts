@@ -3,38 +3,30 @@ import { createUser, getUserByEmail } from "../services/user.service";
 import { signJWT, validatePassword, verifyJwt } from "../utils";
 import { log } from "../logger";
 import { LoginBody } from "../schemas/auth.schema";
+import { register } from "../services/auth.service";
 
 const { ACCESS_TOKEN_TTL, REFRESH_TOKEN_TTL } = process.env;
 
 export async function registerUser(req: Request, res: Response) {
   try {
-    const user = await createUser(req.body);
-
-    const accessToken = await signJWT({ id: user?.id }, ACCESS_TOKEN_TTL!);
-    const refreshToken = await signJWT({ id: user?.id }, REFRESH_TOKEN_TTL!);
+    const { user, accessToken, refreshToken } = await register(req.body);
 
     res.cookie("accessToken", accessToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
-      maxAge: 15 * 60 * 1000, // 15 mins
+      maxAge: 15 * 60 * 1000, // cookie expires after 15 mins
     });
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      maxAge: 7 * 24 * 60 * 60 * 1000, // cookie expires after 7 days
     });
 
-    res.status(201).json(user);
+    res.status(201).json({ user });
   } catch (err: any) {
-    log.error(`Database error: ${err.message}`);
-    // PostgreSQL unique violation error code
-    if (err.code === "23505") {
-      res.status(400).json({ message: "Email is alredy in use" });
-      return;
-    }
-    res.status(500).json({ message: "Server Error" });
+    res.status(400).send({ message: err.message });
   }
 }
 

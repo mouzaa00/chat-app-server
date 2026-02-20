@@ -21,6 +21,8 @@ export async function createUser(input: RegisterBody) {
       id: usersTable.id,
       name: usersTable.name,
       email: usersTable.email,
+      createdAt: usersTable.createdAt,
+      updatedAt: usersTable.updatedAt,
     });
 
   return user;

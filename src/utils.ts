@@ -1,6 +1,7 @@
 import bcrypt from "bcrypt";
 import { importPKCS8, importSPKI, JWTPayload, jwtVerify, SignJWT } from "jose";
 import { log } from "./logger";
+import crypto from "crypto";
 
 export async function validatePassword(
   password: string,
@@ -38,6 +39,10 @@ export async function verifyJwt(jwt: string) {
       payload: null,
     };
   }
+}
+
+export function generateRefreshToken() {
+  return crypto.randomBytes(32).toString("hex");
 }
 
 export function formatName(name: string) {

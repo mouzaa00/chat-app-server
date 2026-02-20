@@ -35,7 +35,7 @@ import {
 const router = Router();
 
 /**
- * Authentication routes
+ * Authentication resource
  */
 router.post("/auth/register", validateRequest(registerSchema), registerUser);
 
