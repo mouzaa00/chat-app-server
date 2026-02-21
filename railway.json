@@ -1,5 +1,5 @@
 {
   "deploy": {
-    "startCommand": "npm run migrate && npm start"
+    "startCommand": "pnpm run db:migrate && pnpm start"
   }
 }
