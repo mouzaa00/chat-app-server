@@ -1,5 +1,5 @@
 import type { Request, Response, NextFunction } from "express";
-import { BadRequestError, ConflictError } from "../errors";
+import { BadRequestError, ConflictError, UnauthorizedError } from "../errors";
 
 export async function errorHandler(
   err: unknown,
@@ -15,6 +15,9 @@ export async function errorHandler(
     message = err.message;
   } else if (err instanceof BadRequestError) {
     statusCode = 400;
+    message = err.message;
+  } else if (err instanceof UnauthorizedError) {
+    statusCode = 401;
     message = err.message;
   }
 

@@ -3,7 +3,7 @@ import { validateRequest } from "./middleware/validateRequest";
 import {
   loginHandler,
   logoutHandler,
-  refreshToken,
+  refreshHandler,
   registerHandler,
 } from "./controllers/auth.controller";
 import { loginSchema, registerSchema } from "./schemas/auth.schema";
@@ -40,7 +40,7 @@ const router = Router();
 router.post("/auth/register", validateRequest(registerSchema), registerHandler);
 router.post("/auth/login", validateRequest(loginSchema), loginHandler);
 router.post("/auth/logout", authenticateToken, logoutHandler);
-router.post("/auth/refresh", refreshToken);
+router.post("/auth/refresh", refreshHandler);
 
 /**
  *  Users resource
