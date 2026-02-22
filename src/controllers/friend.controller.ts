@@ -18,7 +18,7 @@ import { getUserByEmail } from "../services/user.service";
 
 export async function getFriendRequestsHanlder(req: Request, res: Response) {
   try {
-    const userId = res.locals.user.id as string;
+    const userId = req.user!.id as string;
 
     const friendRequests = await getFriendRequests(userId);
 
@@ -33,7 +33,7 @@ export async function createFriendRequestHandler(
   res: Response
 ) {
   try {
-    const senderId = res.locals.user.id as string;
+    const senderId = req.user!.id as string;
     const { email } = req.body;
 
     const recipient = await getUserByEmail(email);
@@ -113,7 +113,7 @@ export async function deleteFriendHandler(
 ) {
   try {
     const { friendId } = req.params;
-    const userId = res.locals.user.id as string;
+    const userId = req.user!.id as string;
 
     await deleteFriend(userId, friendId);
 
@@ -125,7 +125,7 @@ export async function deleteFriendHandler(
 
 export async function getFriendsHandler(req: Request, res: Response) {
   try {
-    const userId = res.locals.user.id as string;
+    const userId = req.user!.id as string;
     const friends = await getFriends(userId);
 
     res.json({ friends });

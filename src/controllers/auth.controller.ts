@@ -59,7 +59,7 @@ export async function loginHandler(
 }
 
 export async function logoutHandler(req: Request, res: Response) {
-  await logout(res.locals.user.id);
+  await logout(req.user!.id);
   res.clearCookie("accessToken");
   res.clearCookie("refreshToken");
   res.json({ message: "User logged out successfully" });

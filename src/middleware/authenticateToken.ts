@@ -18,7 +18,7 @@ export async function authenticateToken(
       throw new UnauthorizedError("Expired or invalid token");
     }
 
-    res.locals.user = payload.user;
+    req.user = payload.user as { id: string; name: string; email: string };
     next();
   } catch (error) {
     next(error);

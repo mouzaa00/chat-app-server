@@ -18,7 +18,7 @@ export async function createConversationHandler(
   res: Response
 ) {
   try {
-    const creatorId = res.locals.user.id as string;
+    const creatorId = req.user!.id as string;
     const recipientId = req.body.recipientId;
 
     const existingConversation = await getExistingConversation(
@@ -54,7 +54,7 @@ export async function createConversationMessageHandler(
 ) {
   const { content } = req.body;
   const { conversationId } = req.params;
-  const userId = res.locals.user.id as string;
+  const userId = req.user!.id as string;
 
   if (!conversationId) {
     res.json({ message: "Conversation id not provided" });
@@ -67,7 +67,7 @@ export async function createConversationMessageHandler(
 
 export async function getConversationsHandler(req: Request, res: Response) {
   try {
-    const userId = res.locals.user.id as string;
+    const userId = req.user!.id as string;
     const conversations = await getConversations(userId);
 
     res.json({ conversations });

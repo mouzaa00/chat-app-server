@@ -15,7 +15,10 @@ export async function register(input: RegisterBody) {
     throw new Error("Something went wrong, try again!");
   }
 
-  const accessToken = await signJWT({ user }, process.env.ACCESS_TOKEN_TTL!);
+  const accessToken = await signJWT(
+    { user: { id: user.id, name: user.name, email: user.email } },
+    process.env.ACCESS_TOKEN_TTL!
+  );
   const refreshToken = generateRefreshToken();
 
   await saveRefreshToken(user.id, refreshToken);
@@ -38,7 +41,13 @@ export async function login(input: LoginBody) {
   }
 
   const accessToken = await signJWT(
-    { user: userWithoutPassword },
+    {
+      user: {
+        id: userWithoutPassword.id,
+        name: userWithoutPassword.name,
+        email: userWithoutPassword.email,
+      },
+    },
     process.env.ACCESS_TOKEN_TTL!
   );
   const refreshToken = generateRefreshToken();
