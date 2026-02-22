@@ -16,7 +16,7 @@ export async function register(input: RegisterBody) {
   }
 
   const accessToken = await signJWT(
-    { user: { id: user.id, name: user.name, email: user.email } },
+    { id: user.id, name: user.name, email: user.email },
     process.env.ACCESS_TOKEN_TTL!
   );
   const refreshToken = generateRefreshToken();
@@ -42,11 +42,9 @@ export async function login(input: LoginBody) {
 
   const accessToken = await signJWT(
     {
-      user: {
-        id: userWithoutPassword.id,
-        name: userWithoutPassword.name,
-        email: userWithoutPassword.email,
-      },
+      id: userWithoutPassword.id,
+      name: userWithoutPassword.name,
+      email: userWithoutPassword.email,
     },
     process.env.ACCESS_TOKEN_TTL!
   );

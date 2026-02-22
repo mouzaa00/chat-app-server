@@ -59,7 +59,7 @@ export async function rotateRefreshToken(incomingToken: string) {
     .where(eq(tokensTable.id, result.refreshtoken.id));
 
   const accessToken = await signJWT(
-    { user: result.user },
+    { id: result.user.id, name: result.user.name, email: result.user.email },
     process.env.ACCESS_TOKEN_TTL!
   );
   const refreshToken = generateRefreshToken();

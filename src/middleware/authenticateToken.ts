@@ -30,7 +30,7 @@ export async function authenticateToken(
       throw new UnauthorizedError("Expired or invalid token");
     }
 
-    req.user = payload.user as { id: string; name: string; email: string };
+    req.user = payload as { id: string; name: string; email: string };
     next();
   } catch (error) {
     next(error);

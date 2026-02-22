@@ -1,5 +1,5 @@
 import bcrypt from "bcrypt";
-import { importPKCS8, importSPKI, JWTPayload, jwtVerify, SignJWT } from "jose";
+import { importPKCS8, importSPKI, jwtVerify, SignJWT } from "jose";
 import { log } from "./logger";
 import crypto from "crypto";
 
@@ -10,7 +10,10 @@ export async function validatePassword(
   return await bcrypt.compare(password, candidatePassword);
 }
 
-export async function signJWT(payload: JWTPayload, timeToLive: string) {
+export async function signJWT(
+  payload: { id: string; email: string; name: string },
+  timeToLive: string
+) {
   const alg = "RS256";
   const pkcs8 = process.env.PRIVATE_KEY as string;
 
