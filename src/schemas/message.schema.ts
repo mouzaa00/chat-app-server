@@ -25,9 +25,14 @@ export const getMessagesSchema = z.object({
       required_error: "A conversation ID is required",
     }),
   }),
+  query: z.object({
+    limit: z.string().default("20"),
+    cursor: z.string().optional(),
+  }),
 });
 
 export type GetMessagesParams = z.infer<typeof getMessagesSchema.shape.params>;
+export type GetMessagesQuery = z.infer<typeof getMessagesSchema.shape.query>;
 
 export const deleteMessageSchema = z.object({
   params: z.object({

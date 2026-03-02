@@ -1,4 +1,4 @@
-import { and, eq } from "drizzle-orm";
+import { and, desc, eq, lt } from "drizzle-orm";
 import { db } from "../db";
 import { messagesTable, usersTable } from "../db/schema";
 
@@ -19,7 +19,18 @@ export async function createMessage(
   return message;
 }
 
-export async function getMessages(conversationId: string) {
+export async function getMessages(
+  conversationId: string,
+  limit: number,
+  cursor?: string
+) {
+  const [cursorMessage] = cursor
+    ? await db
+        .select({ createdAt: messagesTable.createdAt })
+        .from(messagesTable)
+        .where(eq(messagesTable.id, cursor))
+    : [];
+
   const messages = await db
     .select({
       id: messagesTable.id,
@@ -33,10 +44,23 @@ export async function getMessages(conversationId: string) {
       },
     })
     .from(messagesTable)
-    .where(eq(messagesTable.conversationId, conversationId))
+    .where(
+      cursorMessage
+        ? and(
+            eq(messagesTable.conversationId, conversationId),
+            lt(messagesTable.createdAt, cursorMessage.createdAt)
+          )
+        : eq(messagesTable.conversationId, conversationId)
+    )
+    .limit(limit + 1) // fetch one extra message to check if there are more
+    .orderBy(desc(messagesTable.createdAt))
     .innerJoin(usersTable, eq(messagesTable.senderId, usersTable.id));
 
-  return messages;
+  const hasMore = messages.length > limit;
+  const data = hasMore ? messages.slice(0, limit) : messages;
+  const nextCursor = hasMore ? data[data.length - 1]!.id : null;
+
+  return { data, hasMore, nextCursor };
 }
 
 export async function deleteMessage(conversationId: string, messageId: string) {

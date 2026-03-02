@@ -4,12 +4,15 @@ import {
   CreateMessageParams,
   DeleteMessageParams,
   GetMessagesParams,
+  GetMessagesQuery,
 } from "../schemas/message.schema";
 import {
   createMessage,
   deleteMessage,
   getMessages,
 } from "../services/message.service";
+import { is } from "drizzle-orm";
+import { BadRequestError } from "../errors";
 
 export async function createMessageHandler(
   req: Request<CreateMessageParams, {}, CreateMessageBody>,
@@ -33,14 +36,22 @@ export async function createMessageHandler(
 }
 
 export async function getMessagesHandler(
-  req: Request<GetMessagesParams>,
+  req: Request<GetMessagesParams, {}, {}, GetMessagesQuery>,
   res: Response,
   next: NextFunction
 ) {
   try {
     const { conversationId } = req.params;
-    const messages = await getMessages(conversationId);
-    res.status(200).json({ messages });
+    const { limit, cursor } = req.query;
+    const parsedLimit = parseInt(limit);
+
+    // We couldn't validate the limit in the schema due to req.query being typed as string by Express, so we need to validate it here
+    if (isNaN(parsedLimit) || parsedLimit < 1 || parsedLimit > 50) {
+      throw new BadRequestError("Limit must be a number between 1 and 50");
+    }
+
+    const result = await getMessages(conversationId, parsedLimit, cursor);
+    res.status(200).json(result);
   } catch (error) {
     next(error);
   }
